@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Publikasi Nilai</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f6fa; padding:20px; }
+    h1 { text-align:center; }
+    table { border-collapse: collapse; width:100%; background:#fff; }
+    th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+    td.left { text-align:left; }
+    th { background:#2f80ed; color:#fff; }
+    tr:nth-child(even) { background:#f2f2f2; }
+  </style>
+</head>
+<body>
+
+<h1>Publikasi Nilai</h1>
+<p style="text-align:center">Masukkan NISN lalu tekan Enter</p>
+
+<div style="text-align:center; margin-bottom:15px;">
+  <input type="text" id="nisnInput" placeholder="Masukkan NISN" style="padding:8px; width:260px;" />
+</div>
+
+<div id="kop" style="display:none; margin-bottom:15px; padding:10px; background:#fff; border:1px solid #ddd;">
+  <strong>NISN:</strong> <span id="kopNisn"></span><br />
+  <strong>Nama:</strong> <span id="kopNama"></span>
+</div>
+
+<table id="nilaiTable"></table>
+
+<script>
+  const sheetId = "12-kVT0_7GpEVSXg6azURWc38Cic3EZn7kIerpAly3uU";
+  const sheetName = "Sheet1";
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+  const table = document.getElementById('nilaiTable');
+  const nisnInput = document.getElementById('nisnInput');
+
+  let selectedCols = [];
+  let allRows = [];
+
+  const allowedHeaders = ['NISN','NAMA','BENTUK TUGAS','NILAI ANGKA','NILAI HURUF'];
+  const tableHeaders = ['BENTUK TUGAS','NILAI ANGKA','NILAI HURUF'];
+
+  nisnInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') tampilkanData();
+  });
+
+  fetch(url)
+    .then(res => res.text())
+    .then(text => {
+      // cegah error jika response HTML (misalnya salah URL / akses)
+      if (text.trim().startsWith('<')) {
+        throw new Error('Response bukan JSON. Pastikan Sheet publik & nama sheet benar.');
+      }
+
+      const json = JSON.parse(text.substring(47, text.length - 2));
+      const cols = json.table.cols || [];
+      const rows = json.table.rows || [];
+
+      selectedCols = cols
+        .map((c, i) => ({ label: c.label?.toUpperCase().trim(), index: i }))
+        .filter(c => allowedHeaders.includes(c.label));
+
+      allRows = rows;
+
+      // render header tabel (tanpa data)
+      renderHeader();
+    })
+    .catch(err => {
+      console.error(err);
+      table.innerHTML = `<tr><td colspan="${tableHeaders.length}">${err.message}</td></tr>`;
+    });
+
+  function renderHeader() {
+    let html = '<tr>';
+    selectedCols
+      .filter(c => tableHeaders.includes(c.label))
+      .forEach(c => html += `<th>${c.label}</th>`);
+    html += '</tr>';
+    table.innerHTML = html;
+  }
+
+  function tampilkanData() {
+    renderHeader();
+
+    const nisnKey = nisnInput.value.trim().replace(/^0+/, '');
+    if (!nisnKey) {
+      table.innerHTML += `<tr><td colspan="${tableHeaders.length}">Silakan masukkan NISN</td></tr>`;
+      return;
+    }
+
+    // deklarasi kolom HANYA SATU KALI (perbaikan error)
+    const nisnColRef = selectedCols.find(c => c.label === 'NISN');
+    const namaColRef = selectedCols.find(c => c.label === 'NAMA');
+
+    if (!nisnColRef || !namaColRef) {
+      table.innerHTML += `<tr><td colspan="${tableHeaders.length}">Kolom NISN atau NAMA tidak ditemukan</td></tr>`;
+      return;
+    }
+
+    const hasil = allRows
+      .filter(r => {
+        const v = String(r.c[nisnColRef.index]?.v ?? '').replace(/^0+/, '');
+        return v === nisnKey;
+      })
+      // urutkan otomatis berdasarkan BENTUK TUGAS (abjad)
+      .sort((a, b) => {
+        const colTugas = selectedCols.find(c => c.label === 'BENTUK TUGAS');
+        const va = String(a.c[colTugas.index]?.v ?? '').toLowerCase();
+        const vb = String(b.c[colTugas.index]?.v ?? '').toLowerCase();
+        return va.localeCompare(vb, 'id');
+      });
+
+    if (hasil.length === 0) {
+      table.innerHTML += `<tr><td colspan="${tableHeaders.length}">Data tidak ditemukan</td></tr>`;
+      document.getElementById('kop').style.display = 'none';
+      return;
+    }
+
+    // kop
+    document.getElementById('kop').style.display = 'block';
+    document.getElementById('kopNisn').textContent = hasil[0].c[nisnColRef.index]?.v ?? '';
+    document.getElementById('kopNama').textContent = hasil[0].c[namaColRef.index]?.v ?? '';
+
+    hasil.forEach(r => {
+      let tr = '<tr>';
+      selectedCols
+        .filter(c => tableHeaders.includes(c.label))
+        .forEach(c => {
+          const left = c.label === 'BENTUK TUGAS' ? 'left' : '';
+          tr += `<td class="${left}">${r.c[c.index]?.v ?? ''}</td>`;
+        });
+      tr += '</tr>';
+      table.innerHTML += tr;
+    });
+  }
+</script>
+
+</body>
+</html>
