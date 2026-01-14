@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Input & Publikasi Nilai Geografi</title>
+  <title>Sistem Nilai Online Geografi</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -389,14 +389,48 @@
     #kop {
       display: none;
       margin-bottom: 15px;
-      padding: 10px;
+      padding: 15px;
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 8px;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     #kop.show {
+      display: flex;
+    }
+
+    .kop-left {
+      flex: 1;
+    }
+
+    .kop-right {
+      text-align: right;
+      background: linear-gradient(135deg, #ecf0f1 0%, #f8f9fa 100%);
+      padding: 10px 15px;
+      border-radius: 6px;
+      border-left: 4px solid #2f80ed;
+    }
+
+    .kop-right strong {
       display: block;
+      color: #374151;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .kop-right strong:first-child {
+      margin-top: 0;
+    }
+
+    .kop-right .value {
+      display: block;
+      color: #2f80ed;
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 4px;
     }
 
     .loading-overlay {
@@ -785,7 +819,7 @@
       <option value="XII">Kelas XII</option>
     </select>
 
-    <label>Bentuk Tugas <span style="color:red;">*</span></label>
+    <label>Bentuk Tugas (pilih salah satu)<span style="color:red;">*</span></label>
     <select id="tugas" size="3"></select>
 
     <label>Nilai Angka <span style="color:red;">*</span></label>
@@ -829,8 +863,7 @@
 
 <!-- REKAP NILAI CONTAINER -->
 <div class="container" id="rekapContainer">
-  <h1>Publikasi Nilai</h1>
-  <p style="text-align:center">Masukkan NISN lalu tekan Enter</p>
+  <h1>Rekapitulasi Nilai</h1>
 
   <div class="rekap-search">
     <input type="text" id="nisnInput" placeholder="Masukkan NISN" />
@@ -838,9 +871,17 @@
   </div>
 
   <div id="kop">
-    <strong>NISN:</strong> <span id="kopNisn"></span><br />
-    <strong>Nama:</strong> <span id="kopNama"></span><br />
-    <strong>Kelas:</strong> <span id="kopKelas"></span>
+    <div class="kop-left">
+      <strong>NISN:</strong> <span id="kopNisn"></span><br />
+      <strong>Nama:</strong> <span id="kopNama"></span><br />
+      <strong>Kelas:</strong> <span id="kopKelas"></span>
+    </div>
+    <div class="kop-right">
+      <strong>Jumlah Nilai:</strong>
+      <span class="value" id="kopJumlah">0</span>
+      <strong>Rata-rata:</strong>
+      <span class="value" id="kopRataRata">0.00</span>
+    </div>
   </div>
 
   <table class="rekap-table" id="nilaiTable"></table>
@@ -1004,6 +1045,24 @@ function tampilkanDataRekap() {
   document.getElementById('kopNama').textContent = hasil[0].c[namaColRef.index]?.v ?? '';
   document.getElementById('kopKelas').textContent = hasil[0].c[kelasColRef.index]?.v ?? '';
 
+  // Hitung jumlah dan rata-rata nilai
+  const nilaiAngkaColRef = selectedCols.find(c => c.label === 'NILAI ANGKA');
+  let totalNilai = 0;
+  let jumlahNilai = 0;
+
+  hasil.forEach(r => {
+    const nilaiStr = String(r.c[nilaiAngkaColRef?.index]?.v ?? '');
+    const nilai = parseFloat(nilaiStr);
+    if (!isNaN(nilai)) {
+      totalNilai += nilai;
+      jumlahNilai++;
+    }
+  });
+
+  const rataRata = jumlahNilai > 0 ? (totalNilai / jumlahNilai).toFixed(2) : 0;
+  document.getElementById('kopJumlah').textContent = jumlahNilai;
+  document.getElementById('kopRataRata').textContent = rataRata;
+
   let rowsHtml = '';
   hasil.forEach(r => {
     rowsHtml += '<tr>';
@@ -1054,10 +1113,10 @@ function updateTugas(){
   let listTugas = [];
   
   if(kelas === 'X'){
-    listTugas = ['Tugas 1 Konsep Geografi', 'Tugas 2 Diagram Cabang Ilmu Geografi'];
+    listTugas = ['Tugas 1 Catatan Dinamika Litosfer', 'Tugas 2 Sumatif Harian Litosfer'];
   }
   if(kelas === 'XII'){
-    listTugas = ['Tugas 1 Konsep Wilayah & Ruang', 'Tugas 2 Menghitung Indeks Konektivitas & Kekuatan Interaksi Batas Wilayah', 'Tugas 3 Contoh Prinsip'];
+    listTugas = ['Tugas 1 Catatan Kerjasama Antarnegara', 'Tugas 2 Sumatif Kerjasama Antarnegara'];
   }
   
   listTugas.forEach(t => {
