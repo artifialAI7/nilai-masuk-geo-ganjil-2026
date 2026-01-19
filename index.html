@@ -90,7 +90,7 @@
       letter-spacing: 0.3px;
     }
     
-    input, select, textarea { 
+    input, select { 
       width: 100%;
       padding: 12px 14px;
       margin-top: 6px;
@@ -99,16 +99,15 @@
       font-size: 15px;
       transition: all 0.3s ease;
       font-family: inherit;
-    }
-    
-    select { 
       appearance: none;
       background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
       background-repeat: no-repeat;
       background-position: right 10px center;
       background-size: 20px;
       padding-right: 40px;
-    } 
+    }
+    
+    select { 
       cursor: pointer;
     }
     
@@ -843,9 +842,6 @@
       <option value="E">E (< 50)</option>
     </select>
 
-    <label>Catatan</label>
-    <textarea id="catatan" placeholder="Masukkan catatan jika ada"></textarea>
-
     <label>Bukti Dokumen <span style="color:red;">*</span> (JPG/JPEG/PNG, max 1MB)</label>
     <div class="file-input-wrapper">
       <div class="file-input-section">
@@ -919,12 +915,8 @@
         <label>Nilai Huruf:</label>
         <span id="previewHuruf"></span>
       </div>
-      <div class="preview-item">
-        <label>Catatan:</label>
-        <span id="previewCatatan"></span>
-      </div>
       <div class="preview-item" style="flex-direction: column; align-items: flex-start;">
-        <label style="margin-bottom: 10px; font-size: 12px;">Bukti Dokumen:</label>
+        <label style="margin-bottom: 10px; font-size: 12px;">Foto Bukti Nilai:</label>
         <img id="previewModalImage" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #e5e7eb;" alt="Preview Dokumen" />
       </div>
     </div>
@@ -1196,8 +1188,8 @@ let tugasYangSudahDiinput = [];
 let selectedCols = [];
 let allRows = [];
 
-const allowedHeaders = ['NISN','NAMA','KELAS','BENTUK TUGAS','NILAI ANGKA','NILAI HURUF','CATATAN'];
-const tableHeaders = ['BENTUK TUGAS','NILAI ANGKA','NILAI HURUF','CATATAN'];
+const allowedHeaders = ['NISN','NAMA','KELAS','BENTUK TUGAS','NILAI ANGKA','NILAI HURUF'];
+const tableHeaders = ['BENTUK TUGAS','NILAI ANGKA','NILAI HURUF'];
 
 const sheetId = "12-kVT0_7GpEVSXg6azURWc38Cic3EZn7kIerpAly3uU";
 const sheetName = "Sheet1";
@@ -1434,7 +1426,6 @@ function kirimData(){
   const tugas = document.getElementById('tugas').value;
   const nilaiAngka = document.getElementById('nilaiAngka').value;
   const nilaiHuruf = document.getElementById('nilaiHuruf').value;
-  const catatan = document.getElementById('catatan').value;
   const buktiDokumen = document.getElementById('buktiDokumen').files;
   
   if(!kelas || kelas === '') {
@@ -1475,8 +1466,7 @@ function kirimData(){
     kelas: students[nisn].kelas,
     bentuk_tugas: tugas,
     nilai_angka: nilaiAngka,
-    nilai_huruf: nilaiHuruf,
-    catatan: catatan
+    nilai_huruf: nilaiHuruf
   };
 
   document.getElementById('loadingOverlay').classList.add('active');
@@ -1503,7 +1493,6 @@ function showPreview(data){
   document.getElementById('previewTugas').innerText = data.bentuk_tugas;
   document.getElementById('previewAngka').innerText = data.nilai_angka;
   document.getElementById('previewHuruf').innerText = data.nilai_huruf;
-  document.getElementById('previewCatatan').innerText = data.catatan || '-';
   
   const fileInput = document.getElementById('buktiDokumen');
   const file = fileInput.files[0];
