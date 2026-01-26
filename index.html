@@ -839,7 +839,7 @@
       <option value="C">C (75-78)</option>
       <option value="C-">C- (70-74)</option>
       <option value="D">D (65-69)</option>
-      <option value="E">E (< 50)</option>
+      <option value="E">E (< 64)</option>
     </select>
 
     <label>Foto Bukti Nilai<span style="color:red;">*</span> (JPG/JPEG/PNG, max 1MB)</label>
@@ -1395,7 +1395,7 @@ function convertNilai(){
   else if(n >= 75) h='C';
   else if(n >= 70) h='C-';
   else if(n >= 65) h='D';
-  else if(n < 50) h='E';
+  else if(n < 64) h='E';
   document.getElementById('nilaiHuruf').value = h;
 }
 
@@ -1415,7 +1415,7 @@ function convertHurufKeAngka(){
     case 'C': n = 75; break;
     case 'C-': n = 70; break;
     case 'D': n = 65; break;
-    case 'E': n = 40; break;
+    case 'E': n = 64; break;
   }
   
   document.getElementById('nilaiAngka').value = n;
@@ -1566,7 +1566,6 @@ function previewImage() {
 
 </body>
 </html>
-
 
 
 
