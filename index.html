@@ -10,9 +10,41 @@
     
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+      background: linear-gradient(-45deg, #1a472a, #2d5a3d, #4a7c59, #1e90ff, #87ceeb, #8b6914);
+      background-size: 400% 400%;
+      animation: earthGradient 20s ease infinite;
       min-height: 100vh;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: url('bumi.gif') center/contain no-repeat;
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+      animation: rotateBumi 30s linear infinite;
+    }
+
+    @keyframes rotateBumi {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    @keyframes earthGradient {
+      0% { background-position: 0% 50%; }
+      25% { background-position: 50% 100%; }
+      50% { background-position: 100% 50%; }
+      75% { background-position: 50% 0%; }
+      100% { background-position: 0% 50%; }
     }
 
     .tabs {
@@ -21,13 +53,18 @@
       max-width: 800px;
       margin: 20px auto 0;
       justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: transparent;
+      padding: 10px 0;
     }
 
     .tab-button {
       padding: 12px 24px;
       border: none;
       background: rgba(255, 255, 255, 0.3);
-      color: white;
+      color: rgb(245, 6, 6);
       cursor: pointer;
       border-radius: 8px 8px 0 0;
       font-weight: 600;
@@ -36,7 +73,7 @@
     }
 
     .tab-button.active {
-      background: #ffffff;
+      background: #69d9ec;
       color: #059669;
     }
 
@@ -53,6 +90,8 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: none;
+      position: relative;
+      z-index: 1;
     }
 
     .container.active {
@@ -181,7 +220,12 @@
       margin-bottom: 30px;
       gap: 15px;
       padding-bottom: 20px;
+      padding-top: 15px;
       border-bottom: 2px solid #f3f4f6;
+      position: sticky;
+      top: 60px;
+      background: #ffffff;
+      z-index: 99;
     }
     
     .form-header h2 { 
@@ -778,6 +822,49 @@
         padding: 10px 14px;
         font-size: 12px;
       }
+
+    .running-text {
+      position: sticky;
+      top: 115px;
+      z-index: 98;
+      background: linear-gradient(90deg, #059669, #10b981, #34d399, #10b981, #059669);
+      background-size: 200% 100%;
+      animation: gradientShift 4s ease infinite;
+      padding: 12px 0;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+    }
+
+    .running-text-content {
+      display: flex;
+      animation: scroll 15s linear infinite;
+      white-space: nowrap;
+    }
+
+    .running-text-content span {
+      padding: 0 50px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+      100% { background-position: 0% center; }
+    }
   </style>
 </head>
 <body>
@@ -793,6 +880,15 @@
 <div class="tabs">
   <button class="tab-button active" onclick="switchTab('input')">Input Nilai</button>
   <button class="tab-button" onclick="switchTab('rekap')">Rekap Nilai</button>
+</div>
+
+<!-- RUNNING TEXT -->
+<div class="running-text">
+  <div class="running-text-content">
+    <span>📚 NILAI GEOGRAFI 📚</span>
+    <span>📚 NILAI GEOGRAFI 📚</span>
+    <span>📚 NILAI GEOGRAFI 📚</span>
+  </div>
 </div>
 
 <!-- INPUT NILAI CONTAINER -->
@@ -1361,7 +1457,7 @@ function updateTugas(){
   let listTugas = [];
   
   if(kelas === 'X'){
-    listTugas = ['Tugas 1 Catatan Dinamika Litosfer', 'Tugas 2 Contoh Hasil Peristiwa Tektonisme', 'Tugas 3 Menganalisis gambar Bentuk dan Tipe Letusan Gunung Api', 'Tugas 4 Sumatif Harian Litosfer'];
+    listTugas = ['Tugas 1 Catatan Dinamika Litosfer', 'Tugas 2 Contoh Hasil Peristiwa Tektonisme', 'Tugas 3 Menganalisis gambar Bentuk dan Tipe Letusan Gunung Api', 'Tugas 4 Menghitung Episenter Jarak Gempa', 'Tugas 5 Sumatif Harian Litosfer'];
   }
   if(kelas === 'XII'){
     listTugas = ['Tugas 1 Catatan Kerjasama Antarnegara', 'Tugas 2 Contoh Kerjasama Internasional', 'Tugas 3 Sumatif Kerjasama Antarnegara'];
@@ -1566,8 +1662,3 @@ function previewImage() {
 
 </body>
 </html>
-
-
-
-
-
