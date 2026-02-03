@@ -1,1 +1,1664 @@
-ganti
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Nilai Online Geografi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(-45deg, #1a472a, #2d5a3d, #4a7c59, #1e90ff, #87ceeb, #8b6914);
+      background-size: 400% 400%;
+      animation: earthGradient 20s ease infinite;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: url('bumi.gif') center/contain no-repeat;
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+      animation: rotateBumi 30s linear infinite;
+    }
+
+    @keyframes rotateBumi {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    @keyframes earthGradient {
+      0% { background-position: 0% 50%; }
+      25% { background-position: 50% 100%; }
+      50% { background-position: 100% 50%; }
+      75% { background-position: 50% 0%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      max-width: 800px;
+      margin: 20px auto 0;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: transparent;
+      padding: 10px 0;
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      border: none;
+      background: rgba(255, 255, 255, 0.3);
+      color: rgb(245, 6, 6);
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button.active {
+      background: #69d9ec;
+      color: #059669;
+    }
+
+    .tab-button:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+    
+    .container { 
+      max-width: 800px; 
+      margin: 0 auto 30px;
+      background: #ffffff; 
+      padding: 40px;
+      border-radius: 0 16px 16px 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container.active {
+      display: block;
+    }
+    
+    .container:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+    }
+    
+    h2 { 
+      text-align: center;
+      color: #1f2937;
+      font-size: 28px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    h1 { 
+      text-align: center;
+      color: #1f2937;
+      font-size: 28px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    
+    label { 
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #374151;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+    
+    input, select { 
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 6px;
+      border: 2px solid #d1fae5;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 20px;
+      padding-right: 40px;
+    }
+    
+    select { 
+      cursor: pointer;
+    }
+    
+    #tugas {
+      min-height: 120px;
+      height: auto;
+      overflow-y: auto;
+      appearance: auto;
+      background-image: none;
+      padding-right: 14px;
+    }
+    
+    input:focus, select:focus { 
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+      background-color: #f0fdf4;
+    }
+    
+    button { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff; 
+      border: none; 
+      border-radius: 8px;
+      padding: 12px 20px;
+      cursor: pointer; 
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+    
+    button:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+    
+    button:active { 
+      transform: translateY(0);
+    }
+    
+    .hidden { display: none; }
+    
+    .info { 
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%);
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 10px;
+      border-left: 4px solid #10b981;
+      color: #1f2937;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .button-group { 
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+    
+    .button-group button { 
+      flex: 1;
+      margin: 0;
+    }
+    
+    .form-header { 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      gap: 15px;
+      padding-bottom: 20px;
+      padding-top: 15px;
+      border-bottom: 2px solid #f3f4f6;
+      position: sticky;
+      top: 60px;
+      background: #ffffff;
+      z-index: 99;
+    }
+    
+    .form-header h2 { 
+      margin: 0;
+      text-align: left;
+      flex: 1;
+    }
+    
+    .header-buttons { 
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn-logout-top { 
+      padding: 10px 16px;
+      width: auto;
+      margin: 0;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    .btn-logout-top:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+    }
+    
+    .modal { 
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal.show { display: block; }
+    
+    .modal-content { 
+      background: #fff;
+      margin: 10% auto;
+      padding: 24px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-header { 
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .modal-body { margin-bottom: 20px; }
+    
+    .preview-item { 
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .preview-item label { 
+      display: inline;
+      margin: 0;
+      font-weight: 600;
+      color: #374151;
+      font-size: 12px;
+      min-width: 100px;
+    }
+    
+    .preview-item span { 
+      text-align: right;
+      color: #1f2937;
+      font-weight: 500;
+      font-size: 12px;
+    }
+    
+    .modal-button { 
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 13px;
+    }
+    
+    .btn-close { 
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: #fff;
+    }
+    
+    .btn-close:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(107, 114, 128, 0.4);
+    }
+
+    /* REKAP STYLES */
+    .rekap-search {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rekap-search input {
+      width: 300px;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .btn-search {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #2f80ed 0%, #1e5eba 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(47, 128, 237, 0.3);
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(47, 128, 237, 0.5);
+    }
+
+    .btn-search:active {
+      transform: translateY(0);
+    }
+
+    .rekap-table { 
+      width: 100%;
+      border-collapse: collapse;
+      background:#fff;
+      margin-top: 20px;
+    }
+    
+    .rekap-table th, .rekap-table td { 
+      border:1px solid #ddd;
+      padding:8px;
+      text-align:center;
+      font-size: 13px;
+    }
+    
+    .rekap-table td.left { 
+      text-align:left;
+    }
+    
+    .rekap-table th { 
+      background:#2f80ed;
+      color:#fff;
+      font-weight: 600;
+    }
+    
+    .rekap-table tr:nth-child(even) { 
+      background:#f2f2f2;
+    }
+
+    #kop {
+      display: none;
+      margin-bottom: 15px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    #kop.show {
+      display: flex;
+    }
+
+    .kop-left {
+      flex: 1;
+    }
+
+    .kop-right {
+      text-align: right;
+      background: linear-gradient(135deg, #ecf0f1 0%, #f8f9fa 100%);
+      padding: 10px 15px;
+      border-radius: 6px;
+      border-left: 4px solid #2f80ed;
+    }
+
+    .kop-right strong {
+      display: block;
+      color: #374151;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .kop-right strong:first-child {
+      margin-top: 0;
+    }
+
+    .kop-right .value {
+      display: block;
+      color: #2f80ed;
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 4px;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .file-input-section {
+      flex: 1;
+    }
+
+    .preview-section {
+      display: none;
+      text-align: center;
+    }
+
+    .preview-section.show {
+      display: block;
+    }
+
+    .preview-image {
+      max-width: 200px;
+      max-height: 200px;
+      width: auto;
+      height: auto;
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      padding: 8px;
+      background: #f0fdf4;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+      display: inline-block;
+    }
+
+    .preview-label {
+      display: block;
+      font-size: 12px;
+      color: #10b981;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: #10b981;
+      margin-top: 8px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      body { 
+        padding: 10px;
+      }
+      
+      .tabs {
+        margin: 15px auto 0;
+        gap: 5px;
+      }
+
+      .tab-button {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+      
+      .container { 
+        max-width: 100%;
+        margin: 0 auto 20px;
+        padding: 20px;
+        border-radius: 0 12px 12px 12px;
+      }
+      
+      h2, h1 { 
+        font-size: 22px;
+        margin-bottom: 8px;
+      }
+      
+      label { 
+        margin-top: 14px;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+      
+      input, select { 
+        padding: 10px 12px;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+      
+      #tugas {
+        min-height: 100px;
+      }
+      
+      button { 
+        padding: 10px 16px;
+        margin-top: 16px;
+        font-size: 14px;
+      }
+      
+      .form-header { 
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+      }
+      
+      .form-header h2 { 
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      
+      .header-buttons { 
+        width: 100%;
+        flex-direction: column;
+      }
+      
+      .btn-logout-top { 
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
+      }
+      
+      .button-group { 
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      
+      .button-group button { 
+        width: 100%;
+        margin: 0;
+      }
+      
+      .info { 
+        padding: 12px;
+        margin-top: 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      
+      .modal-content { 
+        margin: 20% auto;
+        padding: 25px;
+        max-width: 95%;
+        border-radius: 12px;
+      }
+      
+      .modal-header { 
+        font-size: 18px;
+        margin-bottom: 18px;
+      }
+      
+      .preview-item { 
+        padding: 10px 0;
+        font-size: 13px;
+      }
+      
+      .modal-button { 
+        padding: 10px;
+        margin-top: 12px;
+        font-size: 14px;
+      }
+
+      .rekap-search input {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .btn-search {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+
+      .rekap-table th, .rekap-table td {
+        padding: 6px;
+        font-size: 12px;
+      }
+
+      .file-input-wrapper {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .preview-image {
+        max-width: 150px;
+        max-height: 150px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body { 
+        padding: 8px;
+      }
+      
+      .container { 
+        padding: 16px;
+        margin: 0 auto 10px;
+      }
+      
+      h2, h1 { 
+        font-size: 20px;
+      }
+      
+      label { 
+        margin-top: 12px;
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+      
+      input, select { 
+        padding: 9px 10px;
+        font-size: 13px;
+      }
+      
+      #tugas {
+        min-height: 90px;
+      }
+      
+      button { 
+        padding: 9px 14px;
+        margin-top: 14px;
+        font-size: 13px;
+      }
+      
+      .form-header { 
+        padding-bottom: 12px;
+      }
+      
+      .header-buttons { 
+        width: 100%;
+      }
+      
+      .btn-logout-top { 
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+      
+      .info { 
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 12px;
+      }
+      
+      .modal-content { 
+        margin: 30% auto;
+        padding: 20px;
+        max-width: 100%;
+        border-radius: 10px;
+      }
+      
+      .modal-header { 
+        font-size: 16px;
+        margin-bottom: 15px;
+      }
+      
+      .preview-item { 
+        padding: 8px 0;
+        font-size: 12px;
+      }
+      
+      .modal-button { 
+        padding: 9px;
+        margin-top: 10px;
+        font-size: 13px;
+      }
+
+      .rekap-table th, .rekap-table td {
+        padding: 5px;
+        font-size: 11px;
+      }
+
+      .tabs {
+        margin: 10px auto 0;
+      }
+
+      .tab-button {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+
+      .rekap-search {
+        flex-direction: column;
+      }
+
+      .rekap-search input {
+        width: 100%;
+      }
+
+      .btn-search {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 12px;
+      }
+
+    .running-text {
+      position: sticky;
+      top: 115px;
+      z-index: 98;
+      background: linear-gradient(90deg, #059669, #10b981, #34d399, #10b981, #059669);
+      background-size: 200% 100%;
+      animation: gradientShift 4s ease infinite;
+      padding: 12px 0;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+    }
+
+    .running-text-content {
+      display: flex;
+      animation: scroll 15s linear infinite;
+      white-space: nowrap;
+    }
+
+    .running-text-content span {
+      padding: 0 50px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% center; }
+      50% { background-position: 100% center; }
+      100% { background-position: 0% center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-container">
+    <div class="spinner"></div>
+    <div class="loading-text">Mengirim Data</div>
+  </div>
+</div>
+
+<!-- TAB BUTTONS -->
+<div class="tabs">
+  <button class="tab-button active" onclick="switchTab('input')">Input Nilai</button>
+  <button class="tab-button" onclick="switchTab('rekap')">Rekap Nilai</button>
+</div>
+
+<!-- RUNNING TEXT -->
+<div class="running-text">
+  <div class="running-text-content">
+    <span>📚 NILAI GEOGRAFI 📚</span>
+    <span>📚 NILAI GEOGRAFI 📚</span>
+    <span>📚 NILAI GEOGRAFI 📚</span>
+  </div>
+</div>
+
+<!-- INPUT NILAI CONTAINER -->
+<div class="container active" id="inputContainer">
+  <div id="loginBox">
+    <h2>Login Siswa</h2>
+    <input type="text" id="nisnLogin" placeholder="Masukkan NISN" onkeypress="if(event.key === 'Enter') login()" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="hidden" id="formBox">
+    <div class="form-header">
+      <h2>Input Nilai Geografi</h2>
+      <div class="header-buttons">
+        <button class="btn-logout-top" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <div class="info" id="studentInfo"></div>
+
+    <label>Kelas <span style="color:red;">*</span></label>
+    <select id="kelas" onchange="updateTugas()">
+      <option value="">-- Pilih Kelas --</option>
+      <option value="X">Kelas X</option>
+      <option value="XII">Kelas XII</option>
+    </select>
+
+    <label>Bentuk Tugas (pilih salah satu)<span style="color:red;">*</span></label>
+    <select id="tugas" size="3"></select>
+
+    <label>Nilai Angka <span style="color:red;">*</span></label>
+    <input type="number" id="nilaiAngka" oninput="convertNilai()" />
+
+    <label>Nilai Huruf <span style="color:red;">*</span></label>
+    <select id="nilaiHuruf" onchange="convertHurufKeAngka()">
+      <option value="">-- Pilih Nilai Huruf --</option>
+      <option value="A++">A++ (100)</option>
+      <option value="A+">A+ (98-99)</option>
+      <option value="A">A (95-97)</option>
+      <option value="A-">A- (90-94)</option>
+      <option value="B+">B+ (88-89)</option>
+      <option value="B">B (85-87)</option>
+      <option value="B-">B- (81-84)</option>
+      <option value="C+">C+ (79-80)</option>
+      <option value="C">C (75-78)</option>
+      <option value="C-">C- (70-74)</option>
+      <option value="D">D (65-69)</option>
+      <option value="E">E (< 64)</option>
+    </select>
+
+    <label>Foto Bukti Nilai<span style="color:red;">*</span> (JPG/JPEG/PNG, max 1MB)</label>
+    <div class="file-input-wrapper">
+      <div class="file-input-section">
+        <input type="file" id="buktiDokumen" accept="image/png,image/jpeg" onchange="previewImage()" />
+        <div class="file-name" id="fileName"></div>
+        <div class="file-size" id="fileSize"></div>
+      </div>
+      <div class="preview-section" id="previewSection">
+        <img class="preview-image" id="previewImageElement" alt="Preview" />
+        <div class="preview-label">✓ Gambar Berhasil Diunggah</div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="kirimData()" id="kirimButton">Kirim Nilai</button>
+    </div>
+  </div>
+</div>
+
+<!-- REKAP NILAI CONTAINER -->
+<div class="container" id="rekapContainer">
+  <h1>Rekapitulasi Nilai</h1>
+
+  <div class="rekap-search">
+    <input type="text" id="nisnInput" placeholder="Masukkan NISN" />
+    <button class="btn-search" onclick="tampilkanDataRekap()">Cari</button>
+  </div>
+
+  <div id="kop">
+    <div class="kop-left">
+      <strong>NISN:</strong> <span id="kopNisn"></span><br />
+      <strong>Nama:</strong> <span id="kopNama"></span><br />
+      <strong>Kelas:</strong> <span id="kopKelas"></span>
+    </div>
+    <div class="kop-right">
+      <strong>Jumlah Nilai:</strong>
+      <span class="value" id="kopJumlah">0</span>
+      <strong>Rata-rata:</strong>
+      <span class="value" id="kopRataRata">0.00</span>
+    </div>
+  </div>
+
+  <table class="rekap-table" id="nilaiTable"></table>
+</div>
+
+<div class="modal" id="previewModal">
+  <div class="modal-content">
+    <div class="modal-header"><span style="color: #10b981;">✓</span> Data Berhasil Terkirim</div>
+    <div class="modal-body">
+      <div class="preview-item">
+        <label>NISN:</label>
+        <span id="previewNisn"></span>
+      </div>
+      <div class="preview-item">
+        <label>Nama:</label>
+        <span id="previewNama"></span>
+      </div>
+      <div class="preview-item">
+        <label>Kelas:</label>
+        <span id="previewKelas"></span>
+      </div>
+      <div class="preview-item">
+        <label>Bentuk Tugas:</label>
+        <span id="previewTugas"></span>
+      </div>
+      <div class="preview-item">
+        <label>Nilai Angka:</label>
+        <span id="previewAngka"></span>
+      </div>
+      <div class="preview-item">
+        <label>Nilai Huruf:</label>
+        <span id="previewHuruf"></span>
+      </div>
+      <div class="preview-item" style="flex-direction: column; align-items: flex-start;">
+        <label style="margin-bottom: 10px; font-size: 12px;">Foto Bukti Nilai:</label>
+        <img id="previewModalImage" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #e5e7eb;" alt="Preview Dokumen" />
+      </div>
+    </div>
+    <button class="modal-button btn-close" onclick="closePreview()">Tutup</button>
+  </div>
+</div>
+
+<script>
+const students = {
+  "0097758369": {nama:"AIRA PUTRI OKTAVIANI", kelas:"X 1"},
+  "0097931054": {nama:"AIRISH BILAL NABAWI", kelas:"X 1"},
+  "0093693520": {nama:"ALDHO JUNADIL ILHAM", kelas:"X 1"},
+  "0103307505": {nama:"ALICIA PUTRI DEVINIRA", kelas:"X 1"},
+  "0102108205": {nama:"ANNISA NUR SYIFA", kelas:"X 1"},
+  "0102371225": {nama:"ARYA BHIMA SUTANARENDRA HADIUSODO", kelas:"X 1"},
+  "0094238385": {nama:"AYRA DIAH AGNESA", kelas:"X 1"},
+  "0105461165": {nama:"AZHAR HIDAYAT DHARMA ATMOKO", kelas:"X 1"},
+  "0097206174": {nama:"CAHYA KAMILA", kelas: "X 1"},
+  "0095735226": {nama:"CARISSA ARUNI WIDYADHANA", kelas: "X 1"},
+  "0101727711": {nama:"CHESTA KAYNA MOZABI", kelas: "X 1"},
+  "0099748269": {nama:"DIKA PERMANA", kelas: "X 1"},
+  "0098744140": {nama:"FANIA RAHMALIA", kelas: "X 1"},
+  "0096547231": {nama:"FARELL ABYANSYAH", kelas: "X 1"},
+  "0091486788": {nama:"FATIMAH AZARIA", kelas: "X 1"},
+  "0094064577": {nama:"KAYSA AYUDYA FIQQI", kelas: "X 1"},
+  "3095959925": {nama:"MUCHAMMAD FATIR RISTANDY", kelas: "X 1"},
+  "0094311032": {nama:"MUHAMAD ARYA DWIYANTO", kelas: "X 1"},
+  "3090453929": {nama:"MUHAMMAD FIRDAUS FASYA", kelas: "X 1"},
+  "0102362324": {nama:"NAIFAH UMAIROH PUTRI", kelas: "X 1"},
+  "0107806883": {nama:"NATASYA HAFIZHAH SALSABILA", kelas: "X 1"},
+  "0097087570": {nama:"NAYSHYA NURHAFIZAH", kelas: "X 1"},
+  "0109362636": {nama:"RAFA ARDIYANSAH", kelas: "X 1"},
+  "3094988596": {nama:"RAFAEL AGUERO HARYANTO", kelas: "X 1"},
+  "0104434585": {nama:"RAFFI ALVINO", kelas: "X 1"},
+  "0103753613": {nama:"RASMANA PUTRA", kelas: "X 1"},
+  "0106446196": {nama:"RENATTA NADIA ANAK PERMANA", kelas: "X 1"},
+  "0093309540": {nama:"RIZKY YUGO RAMADHAN", kelas: "X 1"},
+  "0095353888": {nama:"SA'DATAIN AINUN FAJRIAH", kelas: "X 1"},
+  "0102264279": {nama:"SAHJAH SAKILAH DINIA", kelas: "X 1"},
+  "0098999904": {nama:"THALITA ROSIANA SAPUTRO", kelas: "X 1"},
+  "0099411978": {nama:"ZAKARIA BARI BIAN SAMUDRA", kelas: "X 1"},
+  "0102625660": {nama:"ABBYGAIL ANASTASYA RANTEALANG", kelas: "X 2"},
+  "0091558523": {nama:"ABISTA PUTRATAMA GUNAWAN", kelas: "X 2"},
+  "0099168381": {nama:"ALISYA SYORS WIJAYA", kelas: "X 2"},
+  "0107760969": {nama:"ALIYAH MALSA' NAFIAH", kelas: "X 2"},
+  "0087568314": {nama:"ALVIN FAIZ ADITYA", kelas: "X 2"},
+  "0167150180": {nama:"ANINDYA KHALISAH PUTRI", kelas: "X 2"},
+  "0099444906": {nama:"ATAYA KEANDRE PUTRA", kelas: "X 2"},
+  "3107367993": {nama:"ATHAR CAKRA FAEYZA", kelas: "X 2"},
+  "0097093809": {nama:"AZKI ALFIKRA", kelas: "X 2"},
+  "0109449845": {nama:"BAGAS ADI SAPUTRA", kelas: "X 2"},
+  "0094211904": {nama:"CAMELLIA PUTRI SABINA", kelas: "X 2"},
+  "0096962983": {nama:"CIARA LARAS HARWANTO", kelas: "X 2"},
+  "0097253265": {nama:"CYANARA ARETHA PUTRIANTO", kelas: "X 2"},
+  "0106492133": {nama:"DARA AVIRA SHANALIA", kelas: "X 2"},
+  "0095612535": {nama:"DIMITRY GALANG ARCHIECO TIMOTHY SIMAMORA", kelas: "X 2"},
+  "0098746677": {nama:"FAUZAN MUNIF RAMADHAN", kelas: "X 2"},
+  "0107642273": {nama:"FEBY WIJAYA PUTRI", kelas: "X 2"},
+  "0093244375": {nama:"GHUMAISHA AZKA ALVIENA", kelas: "X 2"},
+  "0102000716": {nama:"MARITZA ALIFIA BACHFEN", kelas: "X 2"},
+  "0099040179": {nama:"MAUZA AYU NOVITA", kelas: "X 2"},
+  "0103602951": {nama:"MEIRA NUR AZIZAH", kelas: "X 2"},
+  "0099028840": {nama:"MUHAMAD ROBBY TRIANANTA", kelas: "X 2"},
+  "0092483713": {nama:"MUHAMMAD RIDHO EVIN", kelas: "X 2"},
+  "0099834656": {nama:"NAURA RANA NADHIFA", kelas: "X 2"},
+  "0096407052": {nama:"RAHARDIAN GIRINDRA WARDANA", kelas: "X 2"},
+  "0108919337": {nama:"RAIZ BRILLIANTAMA", kelas: "X 2"},
+  "0094416493": {nama:"RASYAH RESKY ADITYA ALHARUN", kelas: "X 2"},
+  "0097976235": {nama:"RHENITA APRILIA", kelas: "X 2"},
+  "0096453236": {nama:"SALSYABILA FITRI SAFIRA", kelas: "X 2"},
+  "0096448036": {nama:"SHAIRA RAMADHANI", kelas: "X 2"},
+  "0093701906": {nama:"SYAFA DWI ARIANI", kelas: "X 2"},
+  "0101396427": {nama:"THIARA MUTMAINAH FIKRI", kelas: "X 2"},
+  "0095314769": {nama:"TITO PUTRA LESTIYANTO", kelas: "X 2"},
+  "0099988225": {nama:"TSAMARA AZKA ANINDITA", kelas: "X 2"},
+  "0092211429": {nama:"ABDULHAFIZ FADLAN ATORI", kelas: "X 3"},
+  "0108041760": {nama:"AFIF AHMAD", kelas: "X 3"},
+  "0103251329": {nama:"AISYAH ANAIA SANTOSO", kelas: "X 3"},
+  "0109242075": {nama:"ALMIRA DZAKIYAH THALITA SAKHI", kelas: "X 3"},
+  "0108071652": {nama:"ALYSSA PUTRI KAUTSAR", kelas: "X 3"},
+  "0091591105": {nama:"AMAR RIZQY", kelas: "X 3"},
+  "0093725431": {nama:"ANJANI NUR FATMAWATI", kelas: "X 3"},
+  "0095588484": {nama:"AURELIA CAHYA RAMADHANI", kelas: "X 3"},
+  "0098010850": {nama:"BAGUS ARYO SENO", kelas: "X 3"},
+  "0104329848": {nama:"BHANU SIKARA SAHASRADASA", kelas: "X 3"},
+  "0108122400": {nama:"CATUR TEGUH SYAHBANA", kelas: "X 3"},
+  "3108371114": {nama:"CITRA AMIRAH PUTRI", kelas: "X 3"},
+  "0109722014": {nama:"DAVINA SALSABILLA ITSAR", kelas: "X 3"},
+  "3107517403": {nama:"DELICIA ATHAYA ZAINA", kelas: "X 3"},
+  "0103665889": {nama:"FAHISHA RAHMADHITA", kelas: "X 3"},
+  "0091779583": {nama:"FARIZ YUSUF", kelas: "X 3"},
+  "0092029602": {nama:"FIDELIA'AAQILAH RISTA", kelas: "X 3"},
+  "0101502053": {nama:"GLADIZA KEILA PUTRI MODJO", kelas: "X 3"},
+  "0096337476": {nama:"HABIBULLAH ASSYAUQI", kelas: "X 3"},
+  "0099724818": {nama:"MARSYANDA AURELIA PEPPY", kelas: "X 3"},
+  "0108477368": {nama:"MILINKA PUTRI ALETHA RACHMAN", kelas: "X 3"},
+  "0091287841": {nama:"MUHAMAD RASYA HIDAYAH", kelas: "X 3"},
+  "0091376116": {nama:"MUHAMMAD NUR ARIF RAMADHAN", kelas: "X 3"},
+  "0099805128": {nama:"MUHAMMAD RASYA ABIDZAR ARKANANTA", kelas: "X 3"},
+  "3092143664": {nama:"MUHAMMAD ZAKHWAN ALFATHAH", kelas: "X 3"},
+  "0087798529": {nama:"NADYA PUSPITA ANGGRAENI", kelas: "X 3"},
+  "0107513403": {nama:"NAURA SOFIATUL NADHIFA", kelas: "X 3"},
+  "0098426051": {nama:"RAHEL FAHRIZA MANSUR", kelas: "X 3"},
+  "0106344566": {nama:"RIDHO PRASETYO", kelas: "X 3"},
+  "0097921499": {nama:"RISELLA AFIANTY", kelas: "X 3"},
+  "0099805667": {nama:"SALSABILA ZAHRAN", kelas: "X 3"},
+  "0105588499": {nama:"SHEREEN NATHANIA", kelas: "X 3"},
+  "0102688254": {nama:"TANTRA ARDELIA BERNADINE", kelas: "X 3"},
+  "0093051480": {nama:"VANESA QOTRUN NADA", kelas: "X 3"},
+  "0108496095": {nama:"YASMINE FITRIA AZZAHRA", kelas: "X 3"},
+  "0099029847": {nama:"AHMAD ARGA FAIRUS", kelas: "X 4"},
+  "0093712556": {nama:"ALANA TSAMARA IWAN", kelas: "X 4"},
+  "0091307556": {nama:"ALIF RASYDAN ATHALLAH", kelas: "X 4"},
+  "0109922111": {nama:"ALYA GENDISPUTRI DESTIAN", kelas: "X 4"},
+  "0095481451": {nama:"ANDIRA AURELYA", kelas: "X 4"},
+  "0091607323": {nama:"ANNISA NURDIYANTI", kelas: "X 4"},
+  "0102955222": {nama:"ARDIKA PUTRA TRISTIAN", kelas: "X 4"},
+  "0094531604": {nama:"AYESHA PUTRI SAHIRA", kelas: "X 4"},
+  "0098848140": {nama:"BRIAN SAPUTRA", kelas: "X 4"},
+  "0104081660": {nama:"DAFFA IRFANTO", kelas: "X 4"},
+  "0099220871": {nama:"DEWI PARAMITHA", kelas: "X 4"},
+  "0093974023": {nama:"DHEA AINNUR PUTRI", kelas: "X 4"},
+  "0099448254": {nama:"DIANDRA SEKAR ARUM", kelas: "X 4"},
+  "0114954287": {nama:"FAIRUZ IZDIHAR QURATA'AIN", kelas: "X 4"},
+  "0099608532": {nama:"FRISKA NATASIA", kelas: "X 4"},
+  "0093306639": {nama:"GHAIDA KHAIRUNNISA", kelas: "X 4"},
+  "0107046320": {nama:"HAFIDZ RAFI' RABBANI", kelas: "X 4"},
+  "0096667174": {nama:"KARIMA NAILA ZAKIYAH", kelas: "X 4"},
+  "0108630391": {nama:"MIRACLE JASMINE", kelas: "X 4"},
+  "0094286368": {nama:"MUHAMAD RIZKI", kelas: "X 4"},
+  "0101736596": {nama:"MUHAMMAD RAFA HEROKU", kelas: "X 4"},
+  "0109926660": {nama:"MUHAMMAD ZACHRON ARAFI KWINTO", kelas: "X 4"},
+  "0097628186": {nama:"MUHAMMAD ZIKRI ALGIFARI", kelas: "X 4"},
+  "0106603503": {nama:"NATASYA DWI SISWANTI", kelas: "X 4"},
+  "0095660229": {nama:"NAZWA CINTA CHAIRUNNISA", kelas: "X 4"},
+  "3100104031": {nama:"NAZWA KEYLA VERLITA", kelas: "X 4"},
+  "0092827034": {nama:"RAKA PANDAWA SAPUTRA", kelas: "X 4"},
+  "0094436409": {nama:"RAYMONDUS HORAS HUTAURUK", kelas: "X 4"},
+  "0101841546": {nama:"RIVALDY AL-GHOFARI", kelas: "X 4"},
+  "0094719033": {nama:"SALZA ANGGRAENI", kelas: "X 4"},
+  "0103534846": {nama:"SEKAR AYUANDITA", kelas: "X 4"},
+  "3104695496": {nama:"WISYA RAZQIYAH MAHIRA", kelas: "X 4"},
+  "0097678115": {nama:"ZAHRA HANIFAH", kelas: "X 4"},
+  "0094988219": {nama:"ALFHAN SYAFA", kelas: "X 5"},
+  "0095952879": {nama:"ALIKA NOVI FAJRINA HERMANTO", kelas: "X 5"},
+  "0094079410": {nama:"AMANDA CANTIKA KHAIRUNNISA", kelas: "X 5"},
+  "0106868406": {nama:"AQILLA ZARA NAFISA", kelas: "X 5"},
+  "0098776918": {nama:"ARIQA FATINA NAILA", kelas: "X 5"},
+  "0104988315": {nama:"AZKA ANINDIA", kelas: "X 5"},
+  "3093428531": {nama:"AZZIKRI", kelas: "X 5"},
+  "0096093993": {nama:"DEWANGGA PUTRA", kelas: "X 5"},
+  "0091456719": {nama:"DIAH RAHMAH KURNIASARI", kelas: "X 5"},
+  "0104468753": {nama:"DITA AYU LESTARI", kelas: "X 5"},
+  "0105542388": {nama:"GISARINA HANUM PUTRI", kelas: "X 5"},
+  "3100482770": {nama:"HAFIZH ROHADI PRATAMA", kelas: "X 5"},
+  "0094651348": {nama:"HANAFI RADHITYA FATIN", kelas: "X 5"},
+  "0105833180": {nama:"HASYIFA SETIAWAN", kelas: "X 5"},
+  "0106998585": {nama:"HAURA AZ-ZAHRA", kelas: "X 5"},
+  "3105215725": {nama:"HERU RUKMANA", kelas: "X 5"},
+  "0102189547": {nama:"IBNU AHMAD ADLI SAFA", kelas: "X 5"},
+  "0093602226": {nama:"KAYLA RIZKY AMALIA", kelas: "X 5"},
+  "0097387466": {nama:"MUHAMAD FAKHRIZAL AMANSYAHRONI", kelas: "X 5"},
+  "3104345907": {nama:"MUHAMMAD AULIA NIBRAS", kelas: "X 5"},
+  "0091934350": {nama:"MUHAMMAD SAKHIY EL AZZAM", kelas: "X 5"},
+  "0107831153": {nama:"NABILA MAHARANI", kelas: "X 5"},
+  "0105870031": {nama:"NADHIRAH AHWANDJI", kelas: "X 5"},
+  "0098733440": {nama:"NAZWA AULIA", kelas: "X 5"},
+  "0096891264": {nama:"NURSUTA MUSTAQIM", kelas: "X 5"},
+  "0099869188": {nama:"PRITALINCH OCTAVIANI", kelas: "X 5"},
+  "0101485234": {nama:"QUINSHA AULIA RAHMANITA", kelas: "X 5"},
+  "0096360292": {nama:"RAMA PAGI RAMADHAN", kelas: "X 5"},
+  "0092706569": {nama:"RIZKY FAZRI RAMADHAN", kelas: "X 5"},
+  "0101655068": {nama:"SHAFIYYAH DEEVASHA MUMTAZ", kelas: "X 5"},
+  "0091085763": {nama:"SITI KHADIJAH AL MUNAWAROH", kelas: "X 5"},
+  "0109793398": {nama:"VINA BILQIS", kelas: "X 5"},
+  "0109541186": {nama:"VINCENTIUS KEVIN GILANG WIBOWO", kelas: "X 5"},
+  "3097050131": {nama:"ZAHID ABDURROSYID", kelas: "X 5"},
+  "0097941844": {nama:"ZAHRO EKA KURNIAWATI", kelas: "X 5"},
+  "0089934314": {nama:"ABDUL KODIR ZAELANI", kelas: "XII B 1"},
+  "0085206091": {nama:"ADINDA HANDAYANI", kelas: "XII B 1"},
+  "0086759103": {nama:"ADJI NUGROHO", kelas: "XII B 1"},
+  "0075028344": {nama:"AHMAD FAHRI HUSEINI", kelas: "XII B 1"},
+  "0079563924": {nama:"AIDA DESTRIANI", kelas: "XII B 1"},
+  "0085078879": {nama:"AISYAH NUR ADZKIYA", kelas: "XII B 1"},
+  "0078364495": {nama:"BULAN KENCANA ARSYI SAGERI", kelas: "XII B 1"},
+  "0071227610": {nama:"CHIKA RAMADHANI", kelas: "XII B 1"},
+  "0085919341": {nama:"DANNYA MAULIDIA INDRESWARI", kelas: "XII B 1"},
+  "0089709876": {nama:"DENADHIF AZKA KEANDRA", kelas: "XII B 1"},
+  "0085162278": {nama:"DEWI CHANDRA KIRANA", kelas: "XII B 1"},
+  "0072343073": {nama:"DHAFIN AKBAR ALKAUTSAR", kelas: "XII B 1"},
+  "0086417174": {nama:"ELNIARA AZHURA", kelas: "XII B 1"},
+  "0087974865": {nama:"ESTER ROSLIANA CHRISTIN SIMANJUNTAK", kelas: "XII B 1"},
+  "0079477911": {nama:"FAREL BRIA", kelas: "XII B 1"},
+  "0077049532": {nama:"FERDY NURDIANSYAH", kelas: "XII B 1"},
+  "0078645595": {nama:"FIRDA KHOSIAH", kelas: "XII B 1"},
+  "0076447327": {nama:"GANGSAR CIPTO PANGESTU", kelas: "XII B 1"},
+  "0077673375": {nama:"GLADYS UNIKE NAOMI", kelas: "XII B 1"},
+  "0081960894": {nama:"GRISELDA BARDINAH RAISA", kelas: "XII B 1"},
+  "0086099711": {nama:"HALIMAH AZAHRA", kelas: "XII B 1"},
+  "0071982360": {nama:"HIDAYAT", kelas: "XII B 1"},
+  "0075337127": {nama:"IRZI DWI SAPUTRA", kelas: "XII B 1"},
+  "0074749118": {nama:"JELITA PUTRI MAHARANI", kelas: "XII B 1"},
+  "0085963887": {nama:"KEZIA SHABILA WANDIRA", kelas: "XII B 1"},
+  "0082352173": {nama:"MUHAMAD REFAN FEBRIAN", kelas: "XII B 1"},
+  "0089934812": {nama:"MUHAMAD RIZKY SYAHBUDIN", kelas: "XII B 1"},
+  "0084786812": {nama:"MUHAMAD SYAH REZA BAHARI", kelas: "XII B 1"},
+  "0083407044": {nama:"MUHAMMAD FAISAL", kelas: "XII B 1"},
+  "0081918290": {nama:"MUHAMMAD RAFFI DWI PRASETYO", kelas: "XII B 1"},
+  "0088502026": {nama:"NABILA PUTRI RAMADANI", kelas: "XII B 1"},
+  "0078265715": {nama:"NAUFAL SATRIAWAN", kelas: "XII B 1"},
+  "0071311428": {nama:"NAZWA AULIA", kelas: "XII B 1"},
+  "0075057146": {nama:"RAISHA NADINE", kelas: "XII B 1"},
+  "0088351455": {nama:"RAYHAN FAREL AGSANDIHARJO", kelas: "XII B 1"},
+  "0073763458": {nama:"RISYAD SYAFATULLAH", kelas: "XII B 1"},
+  "0088253430": {nama:"RIZKA RAHMADHANI", kelas: "XII B 1"},
+  "0079013201": {nama:"SAHLAN PRAYOGA ABDUL ROZAQ", kelas: "XII B 1"},
+  "0089489547": {nama:"SHERIN SEPTIA FITRI", kelas: "XII B 1"},
+  "0076231841": {nama:"SULTAN ADHI IRAWAN", kelas: "XII B 1"},
+  "0084381471": {nama:"WAHYU DIRGANTARA DWI PUTRA", kelas: "XII B 1"},
+  "0149889614": {nama:"ZAHRA AWWALIYA MALVA", kelas: "XII B 1"},
+  "0084182685": {nama:"ZULFIKAR ARRAFI", kelas: "XII B 1"},
+  "0072563501": {nama:"ABI NUR WAHID", kelas: "XII B 2"},
+  "0088323824": {nama:"AL FATHIR LANGIT RIVA'I", kelas: "XII B 2"},
+  "0075965363": {nama:"ALFANSYAH PRASETIYO WARYONO", kelas: "XII B 2"},
+  "0085261355": {nama:"ARIAPUTRA EKA WIJAYA", kelas: "XII B 2"},
+  "0081025909": {nama:"AULIA ZAHRA SYAFIRA", kelas: "XII B 2"},
+  "0082538332": {nama:"AZZAH ZAHIRAH", kelas: "XII B 2"},
+  "0079855110": {nama:"CINDY NUR AINI", kelas: "XII B 2"},
+  "0082536636": {nama:"DAVA ALFA REZA", kelas: "XII B 2"},
+  "0079230441": {nama:"EZZAR RADITYA", kelas: "XII B 2"},
+  "0085461426": {nama:"FARDHAN SYAKI", kelas: "XII B 2"},
+  "0073605476": {nama:"FARREL FERDIANSYAH", kelas: "XII B 2"},
+  "0082115256": {nama:"FAYESHA HAPPY CALISTHA", kelas: "XII B 2"},
+  "0078312129": {nama:"FITRI OKTAVIANTI", kelas: "XII B 2"},
+  "0084599495": {nama:"GHAISANI HANANIA PUTRI TRISNALDI", kelas: "XII B 2"},
+  "0079975460": {nama:"GILANG RAMADHAN", kelas: "XII B 2"},
+  "0073715928": {nama:"HANIFA AISYAH PUTRI", kelas: "XII B 2"},
+  "0072753346": {nama:"IMANUEL CHRISTIAN ROSADY", kelas: "XII B 2"},
+  "0082462329": {nama:"IZZATI KARIMA", kelas: "XII B 2"},
+  "0084261535": {nama:"JULIA SESA KAMILA", kelas: "XII B 2"},
+  "0082708693": {nama:"KEZIA RAHMANIA PUTRI", kelas: "XII B 2"},
+  "0088840616": {nama:"KHALMA NURDIN AL AYUBI", kelas: "XII B 2"},
+  "0082385969": {nama:"KINANTI PRAMESWARI", kelas: "XII B 2"},
+  "0072124303": {nama:"MAHARA ARDITYA MUHAMAD", kelas: "XII B 2"},
+  "0089353367": {nama:"MARCO IBAS SILO TARIGAN", kelas: "XII B 2"},
+  "0085888887": {nama:"MOCHAMMAD AZ-ZAHRI", kelas: "XII B 2"},
+  "0088569836": {nama:"MUHAMAD SHAFDAR AZMI", kelas: "XII B 2"},
+  "0084947568": {nama:"MUHAMMAD ALTHAF", kelas: "XII B 2"},
+  "0077571997": {nama:"MUHAMMAD HILMI ZAHIR", kelas: "XII B 2"},
+  "0081091231": {nama:"NADIA AYU HIKMATUN NAJWA", kelas: "XII B 2"},
+  "0074353400": {nama:"NEIZA KAYLA AZ ZAHRA", kelas: "XII B 2"},
+  "0071761473": {nama:"NOFRIZA ARFAN MAULANA", kelas: "XII B 2"},
+  "0084671589": {nama:"NUFIKHA HAERUNITA", kelas: "XII B 2"},
+  "0082860045": {nama:"NURUD DINIYYAH AL MARATUS SHOLIHAH", kelas: "XII B 2"},
+  "0083734229": {nama:"RAFI MAULANA", kelas: "XII B 2"},
+  "0098273239": {nama:"RAFINZA HAFIZH", kelas: "XII B 2"},
+  "0074984779": {nama:"RAISSA PUTRI KAMILA", kelas: "XII B 2"},
+  "0085806225": {nama:"RIFA KHOIRUL AZZAM", kelas: "XII B 2"},
+  "0081323808": {nama:"RIZKY RAJA NUR LATIF", kelas: "XII B 2"},
+  "0078941822": {nama:"RIZQI FADHILAH", kelas: "XII B 2"},
+  "0079445981": {nama:"SITI AULIYA", kelas: "XII B 2"},
+  "0089159227": {nama:"THIANKANNORA HARYA BALQISSALMA", kelas: "XII B 2"},
+  "0073533657": {nama:"TRI CAHYA JULIA MARLIN", kelas: "XII B 2"},
+  "0074260641": {nama:"TSABITA ALYA YASMIN", kelas: "XII B 2"},
+  "0089871405": {nama:"VALESKA ALGI FARROS", kelas: "XII B 2"}
+};
+
+let tugasYangSudahDiinput = [];
+let selectedCols = [];
+let allRows = [];
+
+const allowedHeaders = ['NISN','NAMA','KELAS','BENTUK TUGAS','NILAI ANGKA','NILAI HURUF'];
+const tableHeaders = ['BENTUK TUGAS','NILAI ANGKA','NILAI HURUF'];
+
+const sheetId = "12-kVT0_7GpEVSXg6azURWc38Cic3EZn7kIerpAly3uU";
+const sheetName = "Sheet1";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+// Tab switching
+function switchTab(tab) {
+  document.getElementById('inputContainer').classList.remove('active');
+  document.getElementById('rekapContainer').classList.remove('active');
+  document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+
+  if(tab === 'input') {
+    document.getElementById('inputContainer').classList.add('active');
+    document.querySelectorAll('.tab-button')[0].classList.add('active');
+  } else {
+    document.getElementById('rekapContainer').classList.add('active');
+    document.querySelectorAll('.tab-button')[1].classList.add('active');
+    loadRekapData();
+  }
+}
+
+// Load data untuk rekap
+function loadRekapData() {
+  fetch(url)
+    .then(res => res.text())
+    .then(text => {
+      if (text.trim().startsWith('<')) {
+        throw new Error('Response bukan JSON. Pastikan Sheet publik & nama sheet benar.');
+      }
+
+      const json = JSON.parse(text.substring(47, text.length - 2));
+      const cols = json.table.cols || [];
+      const rows = json.table.rows || [];
+
+      selectedCols = cols
+        .map((c, i) => ({ label: c.label?.toUpperCase().trim(), index: i }))
+        .filter(c => allowedHeaders.includes(c.label));
+
+      allRows = rows;
+      renderHeader();
+    })
+    .catch(err => {
+      const table = document.getElementById('nilaiTable');
+      table.innerHTML = `<tr><td colspan="${tableHeaders.length}">${err.message}</td></tr>`;
+    });
+}
+
+function renderHeader() {
+  let html = '<tr>';
+  selectedCols
+    .filter(c => tableHeaders.includes(c.label))
+    .forEach(c => { html += `<th>${c.label}</th>`; });
+  html += '</tr>';
+  document.getElementById('nilaiTable').innerHTML = html;
+}
+
+// Tampilkan data rekap
+document.getElementById('nisnInput')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') tampilkanDataRekap();
+});
+
+function tampilkanDataRekap() {
+  renderHeader();
+
+  const table = document.getElementById('nilaiTable');
+  const nisnInput = document.getElementById('nisnInput');
+  const nisnKey = nisnInput.value.trim().replace(/^0+/, '');
+  
+  if (!nisnKey) {
+    table.innerHTML += `<tr><td colspan="${tableHeaders.length}">Silakan masukkan NISN</td></tr>`;
+    document.getElementById('kop').classList.remove('show');
+    return;
+  }
+
+  const nisnColRef = selectedCols.find(c => c.label === 'NISN');
+  const namaColRef = selectedCols.find(c => c.label === 'NAMA');
+  const kelasColRef = selectedCols.find(c => c.label === 'KELAS');
+  const tugasColRef = selectedCols.find(c => c.label === 'BENTUK TUGAS');
+
+  if (!nisnColRef || !namaColRef || !kelasColRef || !tugasColRef) {
+    table.innerHTML += `<tr><td colspan="${tableHeaders.length}">Struktur header tidak sesuai</td></tr>`;
+    return;
+  }
+
+  const hasil = allRows
+    .filter(r => String(r.c[nisnColRef.index]?.v ?? '').replace(/^0+/, '') === nisnKey)
+    .sort((a, b) => {
+      const va = String(a.c[tugasColRef.index]?.v ?? '').toLowerCase();
+      const vb = String(b.c[tugasColRef.index]?.v ?? '').toLowerCase();
+      return va.localeCompare(vb, 'id');
+    });
+
+  if (hasil.length === 0) {
+    table.innerHTML += `<tr><td colspan="${tableHeaders.length}">Data tidak ditemukan</td></tr>`;
+    document.getElementById('kop').classList.remove('show');
+    return;
+  }
+
+  document.getElementById('kop').classList.add('show');
+  document.getElementById('kopNisn').textContent = hasil[0].c[nisnColRef.index]?.v ?? '';
+  document.getElementById('kopNama').textContent = hasil[0].c[namaColRef.index]?.v ?? '';
+  document.getElementById('kopKelas').textContent = hasil[0].c[kelasColRef.index]?.v ?? '';
+
+  // Hitung jumlah dan rata-rata nilai
+  const nilaiAngkaColRef = selectedCols.find(c => c.label === 'NILAI ANGKA');
+  let totalNilai = 0;
+  let jumlahNilai = 0;
+
+  hasil.forEach(r => {
+    const nilaiStr = String(r.c[nilaiAngkaColRef?.index]?.v ?? '');
+    const nilai = parseFloat(nilaiStr);
+    if (!isNaN(nilai)) {
+      totalNilai += nilai;
+      jumlahNilai++;
+    }
+  });
+
+  const rataRata = jumlahNilai > 0 ? (totalNilai / jumlahNilai).toFixed(2) : 0;
+  document.getElementById('kopJumlah').textContent = jumlahNilai;
+  document.getElementById('kopRataRata').textContent = rataRata;
+
+  let rowsHtml = '';
+  hasil.forEach(r => {
+    rowsHtml += '<tr>';
+    selectedCols
+      .filter(c => tableHeaders.includes(c.label))
+      .forEach(c => {
+        const left = c.label === 'BENTUK TUGAS' ? 'left' : '';
+        rowsHtml += `<td class="${left}">${r.c[c.index]?.v ?? ''}</td>`;
+      });
+    rowsHtml += '</tr>';
+  });
+
+  table.innerHTML += rowsHtml;
+}
+
+// INPUT NILAI FUNCTIONS
+document.addEventListener('DOMContentLoaded', function() {
+  const formInputs = ['nilaiAngka', 'kelas', 'tugas', 'nilaiHuruf'];
+  formInputs.forEach(id => {
+    const element = document.getElementById(id);
+    if(element) {
+      element.addEventListener('keypress', function(event) {
+        if(event.key === 'Enter') {
+          event.preventDefault();
+          kirimData();
+        }
+      });
+    }
+  });
+});
+
+function login(){
+  const nisn = document.getElementById('nisnLogin').value;
+  if(students[nisn]){
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('formBox').classList.remove('hidden');
+    document.getElementById('studentInfo').innerText =
+      `NISN: ${nisn} | Nama: ${students[nisn].nama} | Kelas: ${students[nisn].kelas}`;
+  } else {
+    alert('NISN tidak terdaftar');
+  }
+}
+
+function updateTugas(){
+  const kelas = document.getElementById('kelas').value;
+  const tugas = document.getElementById('tugas');
+  tugas.innerHTML = '';
+  let listTugas = [];
+  
+  if(kelas === 'X'){
+    listTugas = ['Tugas 1 Catatan Dinamika Litosfer', 'Tugas 2 Contoh Hasil Peristiwa Tektonisme', 'Tugas 3 Menganalisis gambar Bentuk dan Tipe Letusan Gunung Api', 'Tugas 4 Menghitung Episenter Jarak Gempa', 'Tugas 5 Sumatif Harian Litosfer'];
+  }
+  if(kelas === 'XII'){
+    listTugas = ['Tugas 1 Catatan Kerjasama Antarnegara', 'Tugas 2 Contoh Kerjasama Internasional', 'Tugas 3 Sumatif Kerjasama Antarnegara'];
+  }
+  
+  listTugas.forEach(t => {
+    const option = document.createElement('option');
+    option.value = t;
+    option.text = t;
+    
+    if(tugasYangSudahDiinput.includes(t)){
+      option.disabled = true;
+      option.text = t + ' (Sudah Diinput)';
+    }
+    
+    tugas.appendChild(option);
+  });
+}
+
+function convertNilai(){
+  const n = parseInt(document.getElementById('nilaiAngka').value);
+  let h = '';
+  if(n === 100) h='A++';
+  else if(n >= 98) h='A+';
+  else if(n >= 95) h='A';
+  else if(n >= 90) h='A-';
+  else if(n >= 88) h='B+';
+  else if(n >= 85) h='B';
+  else if(n >= 81) h='B-';
+  else if(n >= 79) h='C+';
+  else if(n >= 75) h='C';
+  else if(n >= 70) h='C-';
+  else if(n >= 65) h='D';
+  else if(n < 64) h='E';
+  document.getElementById('nilaiHuruf').value = h;
+}
+
+function convertHurufKeAngka(){
+  const h = document.getElementById('nilaiHuruf').value;
+  let n = '';
+  
+  switch(h){
+    case 'A++': n = 100; break;
+    case 'A+': n = 98; break;
+    case 'A': n = 95; break;
+    case 'A-': n = 90; break;
+    case 'B+': n = 88; break;
+    case 'B': n = 85; break;
+    case 'B-': n = 81; break;
+    case 'C+': n = 79; break;
+    case 'C': n = 75; break;
+    case 'C-': n = 70; break;
+    case 'D': n = 65; break;
+    case 'E': n = 64; break;
+  }
+  
+  document.getElementById('nilaiAngka').value = n;
+}
+
+function kirimData(){
+  const kelas = document.getElementById('kelas').value;
+  const tugas = document.getElementById('tugas').value;
+  const nilaiAngka = document.getElementById('nilaiAngka').value;
+  const nilaiHuruf = document.getElementById('nilaiHuruf').value;
+  const buktiDokumen = document.getElementById('buktiDokumen').files;
+  
+  if(!kelas || kelas === '') {
+    alert('⚠️ Kolom "Kelas" wajib diisi!');
+    return;
+  }
+  
+  if(!tugas || tugas === '') {
+    alert('⚠️ Kolom "Bentuk Tugas" wajib diisi!');
+    return;
+  }
+  
+  if(!nilaiAngka || nilaiAngka === '') {
+    alert('⚠️ Kolom "Nilai Angka" wajib diisi!');
+    return;
+  }
+  
+  if(!nilaiHuruf || nilaiHuruf === '') {
+    alert('⚠️ Kolom "Nilai Huruf" wajib diisi!');
+    return;
+  }
+  
+  if(!buktiDokumen || buktiDokumen.length === 0) {
+    alert('⚠️ Kolom "Bukti Dokumen" wajib diunggah!');
+    return;
+  }
+  
+  const maxSize = 1024 * 1024;
+  if(buktiDokumen[0].size > maxSize) {
+    alert('⚠️ Ukuran file tidak boleh lebih dari 1MB!');
+    return;
+  }
+  
+  const nisn = document.getElementById('nisnLogin').value;
+  const data = {
+    nisn: nisn,
+    nama: students[nisn].nama,
+    kelas: students[nisn].kelas,
+    bentuk_tugas: tugas,
+    nilai_angka: nilaiAngka,
+    nilai_huruf: nilaiHuruf
+  };
+
+  document.getElementById('loadingOverlay').classList.add('active');
+
+  fetch('https://script.google.com/macros/s/AKfycbxfp_vXYkLgPKaaVseuBfsCrKCOGcC_ipov13c7o55dxaRykHiTIXZRzuI1PkvbvBAWAA/exec', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(res => res.text())
+  .then(res => {
+    document.getElementById('loadingOverlay').classList.remove('active');
+    showPreview(data);
+  })
+  .catch(err => {
+    document.getElementById('loadingOverlay').classList.remove('active');
+    alert('Gagal mengirim data');
+  });
+}
+
+function showPreview(data){
+  document.getElementById('previewNisn').innerText = data.nisn;
+  document.getElementById('previewNama').innerText = data.nama;
+  document.getElementById('previewKelas').innerText = data.kelas;
+  document.getElementById('previewTugas').innerText = data.bentuk_tugas;
+  document.getElementById('previewAngka').innerText = data.nilai_angka;
+  document.getElementById('previewHuruf').innerText = data.nilai_huruf;
+  
+  const fileInput = document.getElementById('buktiDokumen');
+  const file = fileInput.files[0];
+  
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('previewModalImage').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  document.getElementById('previewModal').classList.add('show');
+}
+
+function closePreview(){
+  const tugasYangDikirim = document.getElementById('tugas').value;
+  tugasYangSudahDiinput.push(tugasYangDikirim);
+  
+  document.getElementById('previewModal').classList.remove('show');
+  resetForm();
+  updateTugas();
+}
+
+function logout(){
+  if(confirm('Yakin ingin logout?')){
+    document.getElementById('nisnLogin').value = '';
+    document.getElementById('formBox').classList.add('hidden');
+    document.getElementById('loginBox').classList.remove('hidden');
+    resetForm();
+  }
+}
+
+function resetForm(){
+  document.getElementById('nilaiAngka').value = '';
+  document.getElementById('nilaiHuruf').value = '';
+  document.getElementById('kelas').value = '';
+  document.getElementById('tugas').innerHTML = '';
+  document.getElementById('buktiDokumen').value = '';
+  document.getElementById('previewSection').classList.remove('show');
+  document.getElementById('fileName').innerText = '';
+  document.getElementById('fileSize').innerText = '';
+}
+
+function previewImage() {
+  const fileInput = document.getElementById('buktiDokumen');
+  const file = fileInput.files[0];
+  const previewSection = document.getElementById('previewSection');
+  const fileNameDiv = document.getElementById('fileName');
+  const fileSizeDiv = document.getElementById('fileSize');
+  const previewImageElement = document.getElementById('previewImageElement');
+
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      previewImageElement.src = e.target.result;
+      previewSection.classList.add('show');
+      fileNameDiv.innerText = '📄 ' + file.name;
+      fileSizeDiv.innerText = 'Ukuran: ' + (file.size / 1024).toFixed(2) + ' KB';
+    };
+
+    reader.readAsDataURL(file);
+  } else {
+    previewSection.classList.remove('show');
+    fileNameDiv.innerText = '';
+    fileSizeDiv.innerText = '';
+  }
+}
+</script>
+
+</body>
+</html>
